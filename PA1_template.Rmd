@@ -9,6 +9,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 if (!require(dplyr)) install.packages("dplyr")
 library(dplyr)
+if (!require(ggplot2)) install.packages("ggplot2")
+library(ggplot2)
 ```
 
 ## Loading and preprocessing the data
@@ -22,7 +24,7 @@ PamData$date <- as.Date(PamData$date, format = "%Y-%m-%d")
 ```
 
 ## What is mean total number of steps taken per day?
-```{r}
+```{r message=FALSE}
 # 1
 stepsPerDay <- PamData %>% group_by(date) %>% summarise(total.steps = sum(steps, na.rm = T))
 # 2
@@ -38,12 +40,34 @@ sprintf("An average of %d steps were taken each day with a median of %d", as.int
 ```{r}
 # 1
 meanStepsByInterval <- PamData %>% group_by(interval) %>% summarise(meansteps = mean(steps, na.rm = T))
-# 2
+
 with(meanStepsByInterval, plot(x = interval, y = meansteps, type = "l"))
+# 2
+sprintf("The %dth interval has the maximum number of steps on average across all the days in the dataset.", meanStepsByInterval$interval[which.max(meanStepsByInterval$meansteps)])
 ```
 
 ## Imputing missing values
+```{r message=FALSE}
+# 1
+sum(is.na(PamData$steps))
+# 2
+# The best strategy I can think of for imputing the missing values is
+# using the mean steps of that particular interval in that particular
+# weekday, where the NA occurs
 
+# 3
+meanStepsByIntByDay <- PamData %>% group_by(weekday = weekdays(date), interval) %>% summarise(meanSteps = mean(steps, na.rm = T))
+meanStepsByIntByDay$meanSteps <- ceiling(meanStepsByIntByDay$meanSteps)
+naindex <- which(is.na(PamData$steps))
+PamData$weekday <- weekdays(PamData$date)
+for (i in naindex) {
+  PamData[i,1] <- meanStepsByIntByDay[meanStepsByIntByDay$weekday==PamData[i,4] & meanStepsByIntByDay$interval==PamData[i,3],3]
+}
+# 4
+stepsPerDayWoNa <- PamData %>% group_by(date) %>% summarise(total.steps = sum(steps, na.rm = T))
 
+ggplot(stepsPerDayWoNa, aes(x = date, y = total.steps)) + geom_histogram(stat = "identity")
 
+sprintf("An average of %d steps were taken each day with a median of %d", as.integer(mean(stepsPerDayWoNa$total.steps)), as.integer(median(stepsPerDayWoNa$total.steps)))
+```
 ## Are there differences in activity patterns between weekdays and weekends?
