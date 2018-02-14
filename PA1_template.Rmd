@@ -5,18 +5,42 @@ output:
     keep_md: true
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require(dplyr)) install.packages("dplyr")
+library(dplyr)
+```
 
 ## Loading and preprocessing the data
 
-
+```{r}
+# 1
+unzip('activity.zip')
+PamData <- read.csv('activity.csv')
+# 2
+PamData$date <- as.Date(PamData$date, format = "%Y-%m-%d")
+```
 
 ## What is mean total number of steps taken per day?
-
+```{r}
+# 1
+stepsPerDay <- PamData %>% group_by(date) %>% summarise(total.steps = sum(steps, na.rm = T))
+# 2
+ggplot(stepsPerDay, aes(x = date, y = total.steps)) + geom_histogram(stat = "identity")
+# 3
+sprintf("An average of %d steps were taken each day with a median of %d", as.integer(mean(stepsPerDay$total.steps)), as.integer(median(stepsPerDay$total.steps)))
+```
 
 
 ## What is the average daily activity pattern?
 
 
+```{r}
+# 1
+meanStepsByInterval <- PamData %>% group_by(interval) %>% summarise(meansteps = mean(steps, na.rm = T))
+# 2
+with(meanStepsByInterval, plot(x = interval, y = meansteps, type = "l"))
+```
 
 ## Imputing missing values
 
