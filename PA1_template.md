@@ -110,3 +110,18 @@ sprintf("An average of %d steps were taken each day with a median of %d", as.int
 ## [1] "An average of 10832 steps were taken each day with a median of 11015"
 ```
 ## Are there differences in activity patterns between weekdays and weekends?
+
+
+```r
+# 1
+PamData <- PamData %>% mutate(partOfWeek=weekday %in% c("Saturday", "Sunday"))
+PamData$partOfWeek <- factor(PamData$partOfWeek, levels = c(FALSE, TRUE), labels = c("Weekday", "Weekend"))
+# 2
+avgStepsWdays <- subset(PamData, partOfWeek=="Weekday") %>% group_by(interval) %>% summarise(meansteps=mean(steps))
+avgStepsWends <- subset(PamData, partOfWeek=="Weekend") %>% group_by(interval) %>% summarise(meansteps=mean(steps))
+par(mfrow = c(2, 1))
+with(avgStepsWdays, plot(x = interval, y = meansteps, type = "l",main = "Average steps taken by 5-minute intervals on weekdays"))
+with(avgStepsWends, plot(x = interval, y = meansteps, type = "l",main = "Average steps taken by 5-minute intervals on weekends"))
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->

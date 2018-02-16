@@ -71,3 +71,15 @@ ggplot(stepsPerDayWoNa, aes(x = date, y = total.steps)) + geom_histogram(stat = 
 sprintf("An average of %d steps were taken each day with a median of %d", as.integer(mean(stepsPerDayWoNa$total.steps)), as.integer(median(stepsPerDayWoNa$total.steps)))
 ```
 ## Are there differences in activity patterns between weekdays and weekends?
+
+```{r fig.height=10}
+# 1
+PamData <- PamData %>% mutate(partOfWeek=weekday %in% c("Saturday", "Sunday"))
+PamData$partOfWeek <- factor(PamData$partOfWeek, levels = c(FALSE, TRUE), labels = c("Weekday", "Weekend"))
+# 2
+avgStepsWdays <- subset(PamData, partOfWeek=="Weekday") %>% group_by(interval) %>% summarise(meansteps=mean(steps))
+avgStepsWends <- subset(PamData, partOfWeek=="Weekend") %>% group_by(interval) %>% summarise(meansteps=mean(steps))
+par(mfrow = c(2, 1))
+with(avgStepsWdays, plot(x = interval, y = meansteps, type = "l",main = "Average steps taken by 5-minute intervals on weekdays"))
+with(avgStepsWends, plot(x = interval, y = meansteps, type = "l",main = "Average steps taken by 5-minute intervals on weekends"))
+```
