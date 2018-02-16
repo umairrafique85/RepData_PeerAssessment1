@@ -12,6 +12,8 @@ output:
 
 ```r
 # 1
+currdir = here()
+setwd(currdir)
 unzip('activity.zip')
 PamData <- read.csv('activity.csv')
 # 2
@@ -66,6 +68,8 @@ sprintf("The %dth interval has the maximum number of steps on average across all
 ```
 
 ## Imputing missing values
+
+### The best strategy I can think of for imputing the missing values is using the mean steps of that particular interval in that particular weekday, where the NA occurs
 
 ```r
 # 1
