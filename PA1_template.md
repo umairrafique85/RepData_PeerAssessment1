@@ -26,11 +26,7 @@ PamData$date <- as.Date(PamData$date, format = "%Y-%m-%d")
 # 1
 stepsPerDay <- PamData %>% group_by(date) %>% summarise(total.steps = sum(steps, na.rm = T))
 # 2
-ggplot(stepsPerDay, aes(x = date, y = total.steps)) + geom_histogram(stat = "identity")
-```
-
-```
-## Warning: Ignoring unknown parameters: binwidth, bins, pad
+ggplot(stepsPerDay, aes(x = total.steps)) + geom_histogram(binwidth = 1000)
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
